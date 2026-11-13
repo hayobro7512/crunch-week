@@ -47,3 +47,41 @@ assert.deepEqual(messy.map((i) => `${i.date.getMonth() + 1}/${i.date.getDate()} 
 const all = ['cs61b', 'econ1', 'english-r1a', 'chem1a'].map((f) => fs.readFileSync(new URL(`../samples/${f}.txt`, import.meta.url), 'utf8')).join('\n\n');
 assert.equal(parseSyllabi(all).length, 36, 'samples still give 36 deadlines');
 console.log('messy + samples ok');
+
+// Real-world formats (test/fixtures): week-number schedules, due times, date tables, lab weeks.
+const fixture = (f) => parseSyllabi(fs.readFileSync(new URL(`fixtures/${f}.txt`, import.meta.url), 'utf8'))
+  .map((i) => `${i.date.getMonth() + 1}/${i.date.getDate()} ${i.course} ${i.type} ${i.title}`);
+assert.deepEqual(fixture('week-rows'), [ // Week 1 = Mon Aug 24 (classes begin Wed Aug 26)
+  '9/4 HIST 7B essay Response paper 1',
+  '9/18 HIST 7B essay Response paper 2',
+  '9/30 HIST 7B exam Midterm exam, in lecture',
+  '10/23 HIST 7B essay Response paper 3', // no day given -> Friday
+  '11/2 HIST 7B essay Final paper proposal',
+  '12/3 HIST 7B essay Final paper',
+]);
+assert.deepEqual(fixture('due-times'), [ // "by 11:59pm" header line is not a deadline
+  '9/8 STAT 20 homework Problem Set 1',
+  '9/22 STAT 20 homework Problem Set 2',
+  '10/1 STAT 20 quiz Quiz 1 in section',
+  '10/13 STAT 20 homework Problem Set 3',
+  '10/14 STAT 20 exam Midterm',
+  '11/3 STAT 20 project Data project checkpoint',
+  '11/17 STAT 20 homework Problem Set 4',
+  '12/4 STAT 20 project Data project final report',
+  '12/17 STAT 20 exam Final exam',
+]);
+assert.deepEqual(fixture('date-table'), [
+  '9/2 DATA C8 lab Lab 1',
+  '9/9 DATA C8 homework HW 1',
+  '9/30 DATA C8 project Project 1',
+  '10/14 DATA C8 exam Midterm (in lecture)',
+  '10/16 DATA C8 homework HW 5',
+  '11/20 DATA C8 project Project 2',
+  '12/15 DATA C8 exam Final exam',
+]);
+assert.deepEqual(fixture('lab-weeks'), [
+  '9/7 PHYSICS 7B lab Lab 1', '9/21 PHYSICS 7B lab Lab 2', '10/5 PHYSICS 7B lab Lab 3', '10/12 PHYSICS 7B lab Lab 4',
+  '10/13 PHYSICS 7B exam Midterm 1', '11/2 PHYSICS 7B lab Lab 5', '11/17 PHYSICS 7B exam Midterm 2',
+  '11/30 PHYSICS 7B lab Lab 6', '12/14 PHYSICS 7B exam Final',
+]);
+console.log('4 fixtures ok');

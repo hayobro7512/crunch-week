@@ -1,0 +1,14 @@
+PHYSICS 7B: Physics for Scientists and Engineers
+Fall 2026 · Lab: 175 Le Conte Hall
+
+Lab reports are due at the start of your next lab section.
+
+Lab 1 (week of Sep 7): Thermal expansion
+Lab 2 (week of Sep 21): Specific heat
+Lab 3 (week of Oct 5): Ideal gas law
+Lab 4 (week of Oct 12): Electric fields
+Midterm 1: Tuesday Oct 13, 7-9pm
+Lab 5 (week of Nov 2): RC circuits
+Midterm 2: Tuesday Nov 17, 7-9pm
+Lab 6 (week of Nov 30): Magnetism
+Final: Monday Dec 14, 3-6pm

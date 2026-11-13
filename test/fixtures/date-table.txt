@@ -1,0 +1,15 @@
+DATA C8: Foundations of Data Science
+Fall 2026 · Wheeler Auditorium
+
+| Date | Topic | Due |
+|------|-------|-----|
+| Aug 26 | Introduction | — |
+| Sep 2 | Tables | Lab 1 |
+| Sep 9 | Visualization | HW 1 |
+| Sep 30 | Iteration | Project 1 |
+| Oct 7 | Sampling | — |
+| Oct 14 | Midterm (in lecture) | — |
+| Oct 16 | Hypothesis testing | HW 5 |
+| Nov 11 | Veterans Day, no lecture | — |
+| Nov 20 | Regression | Project 2 |
+| Dec 15 | Final exam, 8-11am | — |

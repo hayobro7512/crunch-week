@@ -1,0 +1,14 @@
+STAT 20: Introduction to Probability and Statistics
+Fall 2026 | MWF 10-11am | Li Ka Shing 245
+
+Homework is due on Gradescope by 11:59pm on the listed date. Late work loses 10% per day.
+
+Problem Set 1 due 9/8 by 11:59pm
+Problem Set 2 due 9/22 by 11:59pm
+Quiz 1 in section, Thursday 10/1
+Problem Set 3 due 10/13 by 11:59pm
+Midterm: Wednesday, October 14, 7-9pm (room TBA)
+Data project checkpoint due 11/3 by 11:59pm
+Problem Set 4 due 11/17 by 11:59pm
+Data project final report due 12/4 by 11:59pm
+Final exam: Thursday, December 17, 11:30am-2:30pm
