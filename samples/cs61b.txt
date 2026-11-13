@@ -1,0 +1,23 @@
+CS 61B: Data Structures
+Fall 2026 · Wheeler Hall 150 · Instructor: Prof. Dana Okafor
+
+Required texts:
+- Head First Java by Kathy Sierra and Bert Bates (2nd ed., O'Reilly)
+- Data Structures and Abstractions with Java by Frank Carrano (4th ed., Pearson)
+
+Grading
+Projects 40%, homework and labs 15%, midterms 25%, final 20%.
+Late projects lose 10% per day. Slip days: 5 for the semester.
+
+Deadlines
+Lab 1 due Fri Sep 4
+HW 1 due 9/11
+Proj 0: Game of Life due Fri Sep 18
+Lab 4 due 9/25
+Proj 1: Deques due Fri Oct 2
+Midterm 1 Tue Oct 13, 8-10 pm, Pimentel 1
+Proj 2: Gitlet checkpoint due Fri Oct 16
+HW 3 due 10/30
+Midterm 2 Thu Nov 19, 8-10 pm
+Proj 3: Build Your Own World due Fri Dec 4
+Final exam Thu Dec 17, 3-6 pm

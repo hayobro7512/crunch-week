@@ -39,7 +39,7 @@ async function lookupOne(query) {
   const res = await fetch(url, { signal: AbortSignal.timeout(6000) });
   if (!res.ok) throw new Error(`Open Library HTTP ${res.status}`);
   const doc = (await res.json()).docs?.[0];
-  if (!doc) return { query, title: query, access: 'not_found', free: false, url: `https://openlibrary.org/search?q=${encodeURIComponent(query)}` };
+  if (!doc) return { query, access: 'not_found', free: false, url: `https://openlibrary.org/search?q=${encodeURIComponent(query)}` };
   const access = doc.ebook_access || 'no_ebook';
   return {
     query,
@@ -59,5 +59,5 @@ export async function lookupBooks(titles) {
   if (titles.length && results.every((r) => r.status === 'rejected')) {
     throw new Error(`Open Library unreachable: ${results[0].reason?.message || 'network error'}`);
   }
-  return results.map((r, i) => (r.status === 'fulfilled' ? r.value : { query: titles[i], title: titles[i], access: 'error', free: false }));
+  return results.map((r, i) => (r.status === 'fulfilled' ? r.value : { query: titles[i], access: 'error', free: false }));
 }
