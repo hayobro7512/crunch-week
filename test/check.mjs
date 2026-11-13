@@ -24,6 +24,9 @@ assert.deepEqual(
   ['Psychology 2e', 'Thinking, Fast and Slow Kahneman'],
 );
 assert.deepEqual(findTexts('Required texts: Calculus by Stewart; Linear Algebra by Strang'), ['Calculus Stewart', 'Linear Algebra Strang']);
+const messy2 = findTexts(readFileSync(new URL('../judge/messy-syllabus-2.txt', import.meta.url), 'utf8'));
+assert.deepEqual(messy2, ['Calculus: Early Transcendentals Stewart isbn:9781285741550', 'Calculus Volume 2 Strang']);
+assert.deepEqual(findTexts('Course: CS 61B\nInstructor: Dana Okafor'), []);
 console.log(`findTexts ok: ${texts.length} texts`);
 
 const ics = toICS([
@@ -51,4 +54,10 @@ if (process.argv.includes('--live')) {
   const psych = await lookupBooks(['Psychology 2e', 'Thinking, Fast and Slow Kahneman']);
   for (const b of psych) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}) ${b.url}`);
   assert.ok(psych[0].free, 'Psychology 2e free');
+  const calc = await lookupBooks(messy2);
+  for (const b of calc) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}, ${b.year ?? '?'}) ${b.label ?? ''}`);
+  assert.match(calc[0].author, /Stewart/);
+  assert.ok(calc[1].free && /Strang/.test(calc[1].author), 'Strang free');
+  const chem = (await lookupBooks(['Chemistry Brown isbn:9780134414232']))[0];
+  console.log(`  ${chem.access.padEnd(13)} ${chem.title} (${chem.author}, ${chem.year}) ${chem.label ?? ''}`);
 }

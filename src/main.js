@@ -162,7 +162,7 @@ async function renderBooks(text) {
     card.append(
       el('strong', null, b.title || b.query),
       el('span', 'muted', [b.author, b.year].filter(Boolean).join(', ')),
-      el('span', 'badge', b.title ? ACCESS_LABEL[b.access] || 'No free copy' : 'Not found'),
+      el('span', 'badge', b.title ? b.label || ACCESS_LABEL[b.access] || 'No free copy' : 'Not found'),
     );
     grid.append(card);
   }
