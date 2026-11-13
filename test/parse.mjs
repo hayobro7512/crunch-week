@@ -85,3 +85,17 @@ assert.deepEqual(fixture('lab-weeks'), [
   '11/30 PHYSICS 7B lab Lab 6', '12/14 PHYSICS 7B exam Final',
 ]);
 console.log('4 fixtures ok');
+
+// Judge's second messy syllabus: dotted "10.28", weekday inside "Wk 5 (Sep 28 – Oct 2)", ISO dates, holidays.
+assert.deepEqual(parseSyllabi(fs.readFileSync(new URL('../judge/messy-syllabus-2.txt', import.meta.url), 'utf8'))
+  .map((i) => `${i.date.getMonth() + 1}/${i.date.getDate()} ${i.type} ${i.title}`), [
+  '9/9 quiz Quiz 1',
+  '10/1 homework Homework 4',
+  '10/7 exam Midterm I',
+  '10/21 project Project milestone',
+  '10/28 exam Midterm II',
+  '11/9 quiz Take-home quiz window',
+  '12/7 project Final project',
+  '12/18 exam Final',
+]);
+console.log('messy 2 ok');

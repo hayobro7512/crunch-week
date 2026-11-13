@@ -38,7 +38,7 @@ const cleanTitle = (t) => t
   .replace(/\(?\s*week of\s*$/i, '') // "Lab 4 (week of Oct 5)"
   .replace(/[\s,–—-]+(mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?$/i, '') // "Final Exam — Tues."
   .replace(/\b(due|on|by|in)\b\s*[:\-]?\s*$/i, '')
-  .replace(/^[\s\-–—:*•·,.]+|[\s\-–—:*•·,(.]+$/g, '')
+  .replace(/^[\s\-–—:*•·,.)]+|[\s\-–—:*•·,(.]+$/g, '')
   .replace(/\s{2,}/g, ' ');
 
 // Table row -> one line. "| Wk 7 | Review | Midterm 1: Oct 12-16 |" keeps the Due cell;
@@ -76,7 +76,13 @@ export function parseSyllabi(text, refDate = new Date()) {
     // "Quiz 3 Nov 6": keep chrono from reading "3 Nov" as the date.
     const clean = line.replace(MONTH_AFTER_NUM, '$1 · ');
     // Prefer a real date over a time ("Final exam, 8-11am — Dec 15").
-    const hits = chrono.parse(clean, refDate);
+    let hits = chrono.parse(clean, refDate);
+    // "Midterm II -- 10.28": dotted month.day, tried only when nothing else on the line is a date.
+    // ponytail: a section number like "read 3.2 before the quiz" would also read as Mar 2.
+    if (!hits.some((r) => r.start.isCertain('day'))) {
+      const dotted = clean.replace(/(^|[^\d.])(1[0-2]|0?[1-9])\.([12]\d|3[01]|0?[1-9])(?![\d.])/, '$1$2/$3');
+      if (dotted !== clean) hits = chrono.parse(dotted, refDate).map((r) => Object.assign(r, { dotted }));
+    }
     const hit = hits.find((r) => r.start.isCertain('day')) ?? hits[0];
     if (hit && TERM_START.test(line) && hit.start.isCertain('day')) {
       week1 = monday(hit.start.date());
@@ -89,9 +95,14 @@ export function parseSyllabi(text, refDate = new Date()) {
     const wk = week1 && clean.match(WEEK);
     if (hit && hit.start.isCertain('day')) {
       date = hit.start.date();
+      // "Wk 5 (Sep 28 – Oct 2): Homework 4 due Thursday": that weekday inside the stated range.
+      const wd = hit.end && hits.find((r) => r !== hit && r.start.get('weekday') != null && !r.start.isCertain('day'))?.start.get('weekday');
+      if (wd != null) date = new Date(date.getFullYear(), date.getMonth(), date.getDate() + ((wd - date.getDay() + 7) % 7));
       // Title = the words before the date ("Midterm 1: Thu Oct 15"), or after it ("Oct 20: Lab 5 due").
-      const before = clean.slice(0, hit.index).replace(/[\s\-–—:*•·,(]+$/, '');
-      title = before.replace(/^[\s\-–—:*•·]+/, '') ? before : clean.slice(hit.index + hit.text.length);
+      const src = hit.dotted ?? clean;
+      // A bare week label before the date ("Wk 5 (") doesn't count as a title.
+      const before = src.slice(0, hit.index).replace(WEEK, '').replace(/[\s\-–—:*•·,(]+$/, '');
+      title = before.replace(/^[\s\-–—:*•·]+/, '') ? before : src.slice(hit.index + hit.text.length);
     } else if (wk) {
       // "Week 6: Midterm exam (Wed)": that weekday of week 6, or its Friday when no day is given.
       const wd = hit?.start.get('weekday');
