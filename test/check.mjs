@@ -9,26 +9,28 @@ const all = names.map((n) => readFileSync(new URL(`../samples/${n}.txt`, import.
 
 const texts = findTexts(all);
 assert.deepEqual(texts, [
-  'Head First Java Sierra',
-  'Data Structures and Abstractions with Java Carrano',
-  'Principles of Economics Mankiw',
-  'The Wealth of Nations Smith',
-  'Frankenstein Shelley',
-  'Mrs Dalloway Woolf',
-  'Chemistry: The Central Science Brown',
+  'Head First Java by:Sierra ed:2',
+  'Data Structures and Abstractions with Java by:Carrano ed:4',
+  'Principles of Economics by:Mankiw ed:9',
+  'The Wealth of Nations by:Smith',
+  'Frankenstein by:Shelley',
+  'Mrs Dalloway by:Woolf',
+  'Chemistry: The Central Science by:Brown ed:15',
 ]);
-assert.deepEqual(findTexts('Textbook: Calculus by James Stewart\n\nHW 1 due 9/4'), ['Calculus Stewart']);
+assert.deepEqual(findTexts('Textbook: Calculus by James Stewart\n\nHW 1 due 9/4'), ['Calculus by:Stewart']);
 assert.deepEqual(findTexts('no books here\nHW 1 due 9/4'), []);
 assert.deepEqual(
   findTexts(readFileSync(new URL('../judge/messy-syllabus.txt', import.meta.url), 'utf8')),
-  ['Psychology 2e', 'Thinking, Fast and Slow Kahneman'],
+  ['Psychology 2e', 'Thinking, Fast and Slow by:Kahneman'],
 );
-assert.deepEqual(findTexts('Required texts: Calculus by Stewart; Linear Algebra by Strang'), ['Calculus Stewart', 'Linear Algebra Strang']);
+assert.deepEqual(findTexts('Required texts: Calculus by Stewart; Linear Algebra by Strang'), ['Calculus by:Stewart', 'Linear Algebra by:Strang']);
 const messy2 = findTexts(readFileSync(new URL('../judge/messy-syllabus-2.txt', import.meta.url), 'utf8'));
-assert.deepEqual(messy2, ['Calculus: Early Transcendentals Stewart isbn:9781285741550', 'Calculus Volume 2 Strang']);
+assert.deepEqual(messy2, ['Calculus: Early Transcendentals by:Stewart ed:8 isbn:9781285741550', 'Calculus Volume 2 by:Strang']);
 assert.deepEqual(findTexts('Course: CS 61B\nInstructor: Dana Okafor'), []);
-assert.deepEqual(findTexts('Required: Chemistry by Brown (ISBN 978-0134414232)\nMidterm 1 Mon Oct 12\nLab 2 due Oct 14'), ['Chemistry Brown isbn:9780134414232']);
-assert.deepEqual(findTexts('Textbook: Calculus by Stewart\n- Linear Algebra by Strang\nHW 1 due 9/4'), ['Calculus Stewart', 'Linear Algebra Strang']);
+assert.deepEqual(findTexts('Required: Chemistry by Brown (ISBN 978-0134414232)\nMidterm 1 Mon Oct 12\nLab 2 due Oct 14'), ['Chemistry by:Brown isbn:9780134414232']);
+assert.deepEqual(findTexts('Textbook: Calculus by Stewart\n- Linear Algebra by Strang\nHW 1 due 9/4'), ['Calculus by:Stewart', 'Linear Algebra by:Strang']);
+const messy3 = findTexts(readFileSync(new URL('../judge/messy-syllabus-3.txt', import.meta.url), 'utf8'));
+assert.deepEqual(messy3, ['Physics for Scientists and Engineers by:Giancoli ed:4', 'The Feynman Lectures on Physics, Vol. 1']);
 console.log(`findTexts ok: ${texts.length} texts`);
 
 const ics = toICS([
@@ -50,16 +52,21 @@ if (process.argv.includes('--live')) {
   const t0 = Date.now();
   const books = await lookupBooks(texts);
   for (const b of books) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}, ${b.year ?? '?'})`);
-  assert.equal(books.filter((b) => b.free).length, 5);
+  assert.equal(books.filter((b) => b.free).length, 4);
+  assert.deepEqual(books.filter((b) => b.label).map((b) => b.author), ['Theodore L. Brown']);
   assert.ok(books.every((b) => b.url?.startsWith('https://openlibrary.org/works/')), 'every card links to its work');
   console.log(`lookupBooks ok: ${books.filter((b) => b.free).length} of ${books.length} free, ${Date.now() - t0} ms`);
-  const psych = await lookupBooks(['Psychology 2e', 'Thinking, Fast and Slow Kahneman']);
+  const psych = await lookupBooks(['Psychology 2e', 'Thinking, Fast and Slow by:Kahneman']);
   for (const b of psych) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}) ${b.url}`);
   assert.ok(psych[0].free, 'Psychology 2e free');
   const calc = await lookupBooks(messy2);
   for (const b of calc) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}, ${b.year ?? '?'}) ${b.label ?? ''}`);
   assert.match(calc[0].author, /Stewart/);
   assert.ok(calc[1].free && /Strang/.test(calc[1].author), 'Strang free');
-  const chem = (await lookupBooks(['Chemistry Brown isbn:9780134414232']))[0];
+  const m3 = await lookupBooks(messy3);
+  for (const b of m3) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}) ${b.label ?? ''}`);
+  assert.ok(m3.every((b) => !b.free), 'messy 3: no false free book');
+  assert.ok(!m3[0].title || /Giancoli/.test(m3[0].author), 'messy 3: Giancoli or Not found');
+  const chem = (await lookupBooks(['Chemistry by:Brown isbn:9780134414232']))[0];
   console.log(`  ${chem.access.padEnd(13)} ${chem.title} (${chem.author}, ${chem.year}) ${chem.label ?? ''}`);
 }

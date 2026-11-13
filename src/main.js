@@ -9,7 +9,6 @@ const ics = import('./ics.js').catch(() => null);
 const FULL_RED = 3 * WEIGHT.exam;
 
 const SAMPLES = ['cs61b', 'econ1', 'english-r1a', 'chem1a'];
-const FREE = new Set(['public', 'borrowable']);
 const ACCESS_LABEL = { public: 'Free to read', borrowable: 'Free to borrow', printdisabled: 'Print-disabled access', no_ebook: 'No free copy' };
 
 const $ = (id) => document.getElementById(id);
@@ -147,10 +146,11 @@ async function renderBooks(text) {
     box.removeAttribute('aria-busy');
     return box.replaceChildren(el('p', 'error', 'Open Library is unreachable right now. Your deadlines above still work.'));
   }
-  const free = found.filter((b) => FREE.has(b.access)).length;
+  const free = found.filter((b) => b.free).length;
+  const older = found.filter((b) => b.label).length;
   const grid = el('div', 'grid');
   for (const b of found) {
-    const card = el(b.url ? 'a' : 'div', 'book' + (FREE.has(b.access) ? ' free' : ''));
+    const card = el(b.url ? 'a' : 'div', 'book' + (b.free ? ' free' : ''));
     if (b.url) { card.href = b.url; card.target = '_blank'; card.rel = 'noopener'; }
     if (b.coverUrl) {
       const img = el('img');
@@ -166,7 +166,7 @@ async function renderBooks(text) {
     );
     grid.append(card);
   }
-  const banner = el('p', 'banner', `${free} of ${found.length} textbooks free `);
+  const banner = el('p', 'banner', `${free} of ${found.length} textbooks free${older ? `, ${older} more in an older edition` : ''} `);
   banner.append(el('small', null, 'via Open Library'));
   box.removeAttribute('aria-busy');
   box.replaceChildren(banner, grid);
