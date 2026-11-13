@@ -1,9 +1,12 @@
 import { parseSyllabi } from './parse.js';
-import { toWeeks, worstWeek, startBy } from './crunch.js';
+import { toWeeks, worstWeek, startBy, WEIGHT } from './crunch.js';
 
 // books.js and ics.js are built in parallel; until they land the page says so instead of breaking.
 const books = import('./books.js').catch(() => null);
 const ics = import('./ics.js').catch(() => null);
+
+// Fixed color scale, so a calm semester looks calm: about 3 exams' worth of work in a week is full red.
+const FULL_RED = 3 * WEIGHT.exam;
 
 const SAMPLES = ['cs61b', 'econ1', 'english-r1a', 'chem1a'];
 const FREE = new Set(['public', 'borrowable']);
@@ -60,7 +63,6 @@ $('ics').onclick = async () => {
 
 function renderWeeks(weeks) {
   const heaviest = worstWeek(weeks);
-  const max = heaviest.score || 1;
   const c = $('callout');
   c.classList.toggle('calm', heaviest.items.length < 3);
   // Under 3 deadlines in any week there's no crunch to warn about.
@@ -97,7 +99,7 @@ function renderWeeks(weeks) {
   $('heatmap').replaceChildren(...weeks.map((w, i) => {
     const cell = el('a', 'cell' + (w === worst ? ' worst' : ''));
     cell.href = `#week-${i}`;
-    cell.style.setProperty('--heat', (w.score / max).toFixed(2));
+    cell.style.setProperty('--heat', Math.min(1, w.score / FULL_RED).toFixed(2));
     cell.style.setProperty('--i', i);
     cell.title = `${fmt(w.start)}: ${plural(w.items.length, 'deadline')}`;
     cell.append(el('span', 'wk', fmt(w.start)), el('span', 'n', w.items.length || ''));
