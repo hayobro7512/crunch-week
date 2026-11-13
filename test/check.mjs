@@ -19,6 +19,11 @@ assert.deepEqual(texts, [
 ]);
 assert.deepEqual(findTexts('Textbook: Calculus by James Stewart\n\nHW 1 due 9/4'), ['Calculus Stewart']);
 assert.deepEqual(findTexts('no books here\nHW 1 due 9/4'), []);
+assert.deepEqual(
+  findTexts(readFileSync(new URL('../judge/messy-syllabus.txt', import.meta.url), 'utf8')),
+  ['Psychology 2e', 'Thinking, Fast and Slow Kahneman'],
+);
+assert.deepEqual(findTexts('Required texts: Calculus by Stewart; Linear Algebra by Strang'), ['Calculus Stewart', 'Linear Algebra Strang']);
 console.log(`findTexts ok: ${texts.length} texts`);
 
 const ics = toICS([
@@ -40,5 +45,10 @@ if (process.argv.includes('--live')) {
   const t0 = Date.now();
   const books = await lookupBooks(texts);
   for (const b of books) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}, ${b.year ?? '?'})`);
+  assert.equal(books.filter((b) => b.free).length, 5);
+  assert.ok(books.every((b) => b.url?.startsWith('https://openlibrary.org/works/')), 'every card links to its work');
   console.log(`lookupBooks ok: ${books.filter((b) => b.free).length} of ${books.length} free, ${Date.now() - t0} ms`);
+  const psych = await lookupBooks(['Psychology 2e', 'Thinking, Fast and Slow Kahneman']);
+  for (const b of psych) console.log(`  ${b.access.padEnd(13)} ${b.title} (${b.author ?? '?'}) ${b.url}`);
+  assert.ok(psych[0].free, 'Psychology 2e free');
 }

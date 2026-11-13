@@ -17,16 +17,21 @@ function toQuery(line) {
   return `${title.replace(/[,;:.\s]+$/, '')} ${lastName}`.replace(/\s+/g, ' ').trim();
 }
 
+// "Psychology 2e (OpenStax). Recommended: Thinking, Fast and Slow by Daniel Kahneman" -> two queries.
+// Parentheticals go first so a ';' inside "(any edition; chapters 1-3)" doesn't split a book.
+const splitBooks = (line) =>
+  line.replace(/\([^)]*\)|\[[^\]]*\]/g, '').split(/;|\b(?:recommended|optional|also)\s*:/i).map(toQuery);
+
 export function findTexts(text) {
   const out = [];
   const lines = text.split(/\r?\n/);
   for (let i = 0; i < lines.length; i++) {
     const m = lines[i].match(HEADING);
     if (!m) continue;
-    if (m[1]?.trim()) out.push(toQuery(m[1]));
+    if (m[1]?.trim()) out.push(...splitBooks(m[1]));
     // Collect the list under the heading until a blank line or the next heading.
     for (let j = i + 1; j < lines.length && lines[j].trim() && !/:\s*$/.test(lines[j]); j++) {
-      out.push(toQuery(lines[j]));
+      out.push(...splitBooks(lines[j]));
     }
   }
   return [...new Set(out.filter((q) => q.length > 2))];
