@@ -33,3 +33,17 @@ assert.equal(worst.start.toDateString(), new Date(2026, 9, 12).toDateString(), '
 assert.equal(worst.items.length, 4);
 assert.equal(weeks.reduce((n, w) => n + w.items.length, 0), items.length);
 console.log('ok');
+
+// Judge's messy syllabus (judge/messy-syllabus.txt): tables, ranges, recurring notes, weekday stubs.
+import fs from 'node:fs';
+const messy = parseSyllabi(fs.readFileSync(new URL('../judge/messy-syllabus.txt', import.meta.url), 'utf8'));
+assert.deepEqual(messy.map((i) => `${i.date.getMonth() + 1}/${i.date.getDate()} ${i.type} ${i.title}`), [
+  '9/18 homework Reading response 1',
+  '10/12 exam Midterm 1',
+  '11/3 homework Problem set 3',
+  '11/20 essay Paper #2 (5pp)',
+  '12/15 exam Final Exam',
+]);
+const all = ['cs61b', 'econ1', 'english-r1a', 'chem1a'].map((f) => fs.readFileSync(new URL(`../samples/${f}.txt`, import.meta.url), 'utf8')).join('\n\n');
+assert.equal(parseSyllabi(all).length, 36, 'samples still give 36 deadlines');
+console.log('messy + samples ok');

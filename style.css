@@ -52,6 +52,8 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outlin
   background: hsla(var(--hot), 0.12); border-left: 8px solid hsl(var(--hot));
 }
 .callout p { margin: 0; }
+.callout.calm { background: color-mix(in srgb, var(--free) 12%, transparent); border-left-color: var(--free); }
+.callout.calm .kicker { color: var(--free); }
 .callout .kicker { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; font-weight: 700; color: hsl(var(--hot)); }
 .callout .headline { font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; margin-top: 2px; }
 .callout .what { color: var(--muted); margin-top: 2px; }

@@ -7,7 +7,7 @@ const ics = import('./ics.js').catch(() => null);
 
 const SAMPLES = ['cs61b', 'econ1', 'english-r1a', 'chem1a'];
 const FREE = new Set(['public', 'borrowable']);
-const ACCESS_LABEL = { public: 'Public domain', borrowable: 'Free to borrow', printdisabled: 'Print-disabled access', no_ebook: 'No free copy' };
+const ACCESS_LABEL = { public: 'Free to read', borrowable: 'Free to borrow', printdisabled: 'Print-disabled access', no_ebook: 'No free copy' };
 
 const $ = (id) => document.getElementById(id);
 const fmt = (d, o = { month: 'short', day: 'numeric' }) => d.toLocaleDateString('en-US', o);
@@ -59,32 +59,38 @@ $('ics').onclick = async () => {
 };
 
 function renderWeeks(weeks) {
-  const worst = worstWeek(weeks);
-  const max = worst.score || 1;
-
-  // Callout: the crunch week, every item in it, and what to start early.
-  const counts = {};
-  for (const it of worst.items) counts[it.type] = (counts[it.type] || 0) + 1;
-  const what = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) => plural(n, t)).join(', ');
-  const span = Math.round((worst.items.at(-1).date - worst.items[0].date) / 864e5) + 1;
-  const chips = el('ul', 'chips');
-  for (const it of worst.items) {
-    const chip = el('li', it.type);
-    chip.append(el('b', null, fmt(it.date, { weekday: 'short' })), ` ${it.course} ${it.title}`);
-    chips.append(chip);
-  }
+  const heaviest = worstWeek(weeks);
+  const max = heaviest.score || 1;
   const c = $('callout');
-  c.replaceChildren(
-    el('p', 'kicker', 'Your crunch week'),
-    el('p', 'headline', `${fmt(worst.start)} to ${fmt(worst.end)}: ${plural(worst.items.length, 'deadline')} in ${plural(span, 'day')}`),
-    el('p', 'what', `${what}.`),
-    chips,
-  );
-  const head = startBy(worst);
-  if (head) {
-    const early = Math.round((head.item.date - head.date) / 864e5);
-    const verb = head.item.type === 'exam' ? 'Start studying for' : 'Start';
-    c.append(el('p', 'nudge', `${verb} ${head.item.course} ${head.item.title} by ${fmt(head.date, { weekday: 'short', month: 'short', day: 'numeric' })}, ${early === 7 ? 'a week' : plural(early, 'day')} early.`));
+  c.classList.toggle('calm', heaviest.items.length < 3);
+  // Under 3 deadlines in any week there's no crunch to warn about.
+  const worst = heaviest.items.length >= 3 ? heaviest : null;
+  if (!worst) {
+    c.replaceChildren(el('p', 'kicker', 'Crunch check'), el('p', 'headline', 'No crunch weeks. Nice.'), el('p', 'what', 'No week has more than 2 deadlines.'));
+  } else {
+    // Callout: the crunch week, every item in it, and what to start early.
+    const counts = {};
+    for (const it of worst.items) counts[it.type] = (counts[it.type] || 0) + 1;
+    const what = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) => plural(n, t)).join(', ');
+    const span = Math.round((worst.items.at(-1).date - worst.items[0].date) / 864e5) + 1;
+    const chips = el('ul', 'chips');
+    for (const it of worst.items) {
+      const chip = el('li', it.type);
+      chip.append(el('b', null, fmt(it.date, { weekday: 'short' })), ` ${it.course} ${it.title}`);
+      chips.append(chip);
+    }
+    c.replaceChildren(
+      el('p', 'kicker', 'Your crunch week'),
+      el('p', 'headline', `${fmt(worst.start)} to ${fmt(worst.end)}: ${plural(worst.items.length, 'deadline')} in ${plural(span, 'day')}`),
+      el('p', 'what', `${what}.`),
+      chips,
+    );
+    const head = startBy(worst);
+    if (head) {
+      const early = Math.round((head.item.date - head.date) / 864e5);
+      const verb = head.item.type === 'exam' ? 'Start studying for' : 'Start';
+      c.append(el('p', 'nudge', `${verb} ${head.item.course} ${head.item.title} by ${fmt(head.date, { weekday: 'short', month: 'short', day: 'numeric' })}, ${early === 7 ? 'a week' : plural(early, 'day')} early.`));
+    }
   }
 
   // Heatmap: one cell per week, darker = heavier. --i staggers the reveal.
