@@ -37,9 +37,9 @@ Spike (20:50): chrono-node parsed 5/6 messy lines ("due Fri Oct 9", "10/22", "ne
 ## Milestones
 | Milestone | Due | State | Judge result |
 |-----------|-----|-------|--------------|
-| M1 walking skeleton | 22:15 | live 21:04 | judge checking |
-| M2 golden path real | 23:30 | books + .ics live 21:04, no stubs | judge checking |
-| M3 wow and polish | 00:45 | | unchecked |
+| M1 walking skeleton | 22:15 | live 21:04 | PASS 3.7/5 (judge-m1) |
+| M2 golden path real | 23:30 | real, no stubs; messy-syllabus fixes live | PASS 4.0/5 (judge-m2) |
+| M3 wow and polish | 00:45 | callout, heatmap scale, phone layout, title card, video inputs | PASS 4.1/5 (judge-m3); fixes in task 514 |
 | Freeze | 01:00 | | |
 | Draft submission in `submission/` | 01:30 | | |
 | Deadline | 02:00 | | |
@@ -65,3 +65,9 @@ Interfaces: parse.js exports `parseSyllabi(text, refDate) -> Item[]`; crunch.js 
 
 ## Git flow
 `main` deploys. Room agents claim, commit only their paths to `main`, `git pull --rebase`, push. No teammates, no PRs. After freeze, fixes only.
+
+## State at 21:26 (lead)
+- All three milestones passed by the judge, ~3 h early. Freeze stays 01:00; until then only robustness fixes from judge pages and writeup/README sync.
+- Decision: a decades-old edition is not counted as free; banner "4 of 7 textbooks free, 1 more in an older edition"; video beat 4 says the same.
+- Owners now: skeleton-2 = parse.js + books.js (task 514); skeleton = submission/ + README (task 513); judge = re-check after 514.
+- Video: page video draft 4, 1:47, title card + inputs in submission/.
