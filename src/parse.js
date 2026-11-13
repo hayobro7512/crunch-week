@@ -22,6 +22,9 @@ export function typeOf(line) {
 // "Fall 2026" anywhere in the text pins the year, so the sample parses the same on any day.
 const TERM = /\b(spring|summer|fall|autumn)\s+(20\d\d)\b/i;
 const TERM_MID = { spring: 2, summer: 6, fall: 9, autumn: 9 };
+// Months a term's deadlines can fall in (0 = Jan). Dates outside are other things ("HW 6/7" read as June 7).
+// ponytail: a fall final in early January would be dropped; widen the window if a school does that.
+const TERM_MONTHS = { spring: [0, 5], summer: [4, 8], fall: [7, 11], autumn: [7, 11] };
 
 const WEEK = /\b(?:week|wk)\.?\s*(\d{1,2})\b/i;
 // "Instruction begins Wednesday, August 26": the date Week 1 is counted from.
@@ -37,7 +40,7 @@ const cleanTitle = (t) => t
   .replace(/,?\s*\d{1,2}(:\d\d)?\s*(-\s*\d{1,2}(:\d\d)?)?\s*(am|pm)\b.*$/i, '') // "Final exam, 8-11am"
   .replace(/\(?\s*week of\s*$/i, '') // "Lab 4 (week of Oct 5)"
   .replace(/[\s,–—-]+(mon|tue|wed|thu|fri|sat|sun)[a-z]*\.?$/i, '') // "Final Exam — Tues."
-  .replace(/\b(due|on|by|in)\b\s*[:\-]?\s*$/i, '')
+  .replace(/\b(due|on|by|in|is|are)\b\s*[:\-]?\s*$/i, '')
   .replace(/^[\s\-–—:*•·,.)]+|[\s\-–—:*•·,(.]+$/g, '')
   .replace(/\s{2,}/g, ' ');
 
@@ -55,6 +58,8 @@ function tableRow(line) {
 export function parseSyllabi(text, refDate = new Date()) {
   const term = text.match(TERM);
   if (term) refDate = new Date(+term[2], TERM_MID[term[1].toLowerCase()], 15);
+  const [m0, m1] = term ? TERM_MONTHS[term[1].toLowerCase()] : [0, 11];
+  const inTerm = (d) => (!term || d.getFullYear() === +term[2]) && d.getMonth() >= m0 && d.getMonth() <= m1;
   const items = [];
   let course = 'Course';
   let week1 = null; // Monday of Week 1, once a syllabus states when classes begin
@@ -64,7 +69,8 @@ export function parseSyllabi(text, refDate = new Date()) {
     if (!line) continue;
 
     const type = typeOf(line);
-    const head = line.match(COURSE);
+    // "PHYSICS 7A (Mechanics) - Fall 2026 - Syllabus v2": the course code is the first segment.
+    const head = line.split(/\s+[-–—|·]\s+/)[0].replace(/\s*\([^)]*\)/g, '').match(COURSE);
     if (head && type === 'other' && line.length < 70 && !raw.trim().startsWith('|') && !NOT_COURSE.test(line)) {
       course = head[1].replace(/\s+/g, ' ');
       week1 = null;
@@ -83,7 +89,10 @@ export function parseSyllabi(text, refDate = new Date()) {
       const dotted = clean.replace(/(^|[^\d.])(1[0-2]|0?[1-9])\.([12]\d|3[01]|0?[1-9])(?![\d.])/, '$1$2/$3');
       if (dotted !== clean) hits = chrono.parse(dotted, refDate).map((r) => Object.assign(r, { dotted }));
     }
-    const hit = hits.find((r) => r.start.isCertain('day')) ?? hits[0];
+    // "HW 6/7 (combined) - due 11/12": the date after "due" wins.
+    const dueAt = clean.search(/\bdue\b/i);
+    const real = hits.filter((r) => r.start.isCertain('day') && inTerm(r.start.date()));
+    const hit = (dueAt >= 0 && real.find((r) => r.index > dueAt)) || real[0] || hits.find((r) => !r.start.isCertain('day'));
     if (hit && TERM_START.test(line) && hit.start.isCertain('day')) {
       week1 = monday(hit.start.date());
       continue;

@@ -99,3 +99,15 @@ assert.deepEqual(parseSyllabi(fs.readFileSync(new URL('../judge/messy-syllabus-2
   '12/18 exam Final',
 ]);
 console.log('messy 2 ok');
+
+// Judge's third messy syllabus: "HW 6/7 (combined) - due 11/12" must not become June 7; header split on " - ".
+assert.deepEqual(parseSyllabi(fs.readFileSync(new URL('../judge/messy-syllabus-3.txt', import.meta.url), 'utf8'))
+  .map((i) => `${i.date.getMonth() + 1}/${i.date.getDate()} ${i.course} ${i.type} ${i.title}`), [
+  '9/10 PHYSICS 7A homework Pset 1',
+  '10/1 PHYSICS 7A exam Exam 1 (in class)',
+  '10/14 PHYSICS 7A lab Lab report 2',
+  '10/30 PHYSICS 7A project Final project proposal',
+  '11/12 PHYSICS 7A homework HW 6/7 (combined)',
+  '11/18 PHYSICS 7A exam Exam 2 (cumulative)',
+]);
+console.log('messy 3 ok');
