@@ -133,11 +133,16 @@ async function renderBooks(text) {
   if (!mod) return box.replaceChildren(el('p', 'muted', 'Textbook lookup is coming soon.'));
   const titles = mod.findTexts(text);
   if (!titles.length) return box.replaceChildren(el('p', 'muted', 'No required texts found. Add a "Required texts" section to a syllabus.'));
-  box.replaceChildren(el('p', 'muted', `Looking up ${plural(titles.length, 'book')} on Open Library…`));
+  // Loading state: a status line plus one placeholder card per book, so the panel doesn't jump when covers land.
+  const placeholders = el('div', 'grid');
+  for (const _ of titles) placeholders.append(el('div', 'book placeholder'));
+  box.setAttribute('aria-busy', 'true');
+  box.replaceChildren(el('p', 'muted loading', `Looking up ${plural(titles.length, 'book')} on Open Library…`), placeholders);
   let found;
   try {
     found = await mod.lookupBooks(titles);
   } catch {
+    box.removeAttribute('aria-busy');
     return box.replaceChildren(el('p', 'error', 'Open Library is unreachable right now. Your deadlines above still work.'));
   }
   const free = found.filter((b) => FREE.has(b.access)).length;
@@ -159,7 +164,10 @@ async function renderBooks(text) {
     );
     grid.append(card);
   }
-  box.replaceChildren(el('p', 'banner', `${free} of ${found.length} textbooks free`), grid);
+  const banner = el('p', 'banner', `${free} of ${found.length} textbooks free `);
+  banner.append(el('small', null, 'via Open Library'));
+  box.removeAttribute('aria-busy');
+  box.replaceChildren(banner, grid);
 }
 
 // Used only if samples/ hasn't been published yet.
