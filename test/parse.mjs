@@ -46,6 +46,7 @@ assert.deepEqual(messy.map((i) => `${i.date.getMonth() + 1}/${i.date.getDate()} 
 ]);
 const all = ['cs61b', 'econ1', 'english-r1a', 'chem1a'].map((f) => fs.readFileSync(new URL(`../samples/${f}.txt`, import.meta.url), 'utf8')).join('\n\n');
 assert.equal(parseSyllabi(all).length, 36, 'samples still give 36 deadlines');
+assert.deepEqual(parseSyllabi(all + '\n\n' + all), parseSyllabi(all), 'samples pasted twice give the same 36 deadlines');
 console.log('messy + samples ok');
 
 // Real-world formats (test/fixtures): week-number schedules, due times, date tables, lab weeks.

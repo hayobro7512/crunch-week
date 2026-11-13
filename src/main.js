@@ -33,7 +33,10 @@ $('unpack').onclick = () => {
   const text = $('syllabi').value;
   items = parseSyllabi(text);
   if (!items.length) {
-    $('status').textContent = 'No dated deadlines found. Lines like "Midterm 1: Oct 15" work best.';
+    // Digits but no dates usually means another language's dates ("15 octobre", "15.10.").
+    $('status').textContent = /\d/.test(text)
+      ? 'Crunch Week reads English dates for now. Lines like "Midterm 1: Oct 15" work best.'
+      : 'No dated deadlines found. Lines like "Midterm 1: Oct 15" work best.';
     $('results').hidden = true;
     return;
   }

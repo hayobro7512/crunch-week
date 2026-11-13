@@ -122,5 +122,12 @@ export function parseSyllabi(text, refDate = new Date()) {
     } else continue; // no usable date: time only ("by 11:59pm"), or a bare weekday
     items.push({ date: new Date(date.getFullYear(), date.getMonth(), date.getDate()), course, type, title: cleanTitle(title) || type });
   }
-  return items.sort((a, b) => a.date - b.date);
+  // A syllabus pasted twice gives each deadline once: same course, title and day.
+  const seen = new Set();
+  return items
+    .filter((it) => {
+      const k = `${it.course}|${it.title}|${+it.date}`;
+      return !seen.has(k) && seen.add(k);
+    })
+    .sort((a, b) => a.date - b.date);
 }
