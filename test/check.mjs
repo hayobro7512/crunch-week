@@ -27,6 +27,8 @@ assert.deepEqual(findTexts('Required texts: Calculus by Stewart; Linear Algebra 
 const messy2 = findTexts(readFileSync(new URL('../judge/messy-syllabus-2.txt', import.meta.url), 'utf8'));
 assert.deepEqual(messy2, ['Calculus: Early Transcendentals Stewart isbn:9781285741550', 'Calculus Volume 2 Strang']);
 assert.deepEqual(findTexts('Course: CS 61B\nInstructor: Dana Okafor'), []);
+assert.deepEqual(findTexts('Required: Chemistry by Brown (ISBN 978-0134414232)\nMidterm 1 Mon Oct 12\nLab 2 due Oct 14'), ['Chemistry Brown isbn:9780134414232']);
+assert.deepEqual(findTexts('Textbook: Calculus by Stewart\n- Linear Algebra by Strang\nHW 1 due 9/4'), ['Calculus Stewart', 'Linear Algebra Strang']);
 console.log(`findTexts ok: ${texts.length} texts`);
 
 const ics = toICS([

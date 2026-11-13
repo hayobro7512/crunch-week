@@ -36,9 +36,12 @@ export function findTexts(text) {
   for (let i = 0; i < lines.length; i++) {
     const m = lines[i].match(HEADING);
     if (!m) continue;
-    if (m[1]?.trim()) out.push(...splitBooks(m[1]));
+    const inline = m[1]?.trim();
+    if (inline) out.push(...splitBooks(inline));
     // Collect the list under the heading until a blank line or the next heading.
+    // After an inline "Required: X" only bullets count, so the deadline lines that follow aren't read as books.
     for (let j = i + 1; j < lines.length && lines[j].trim() && !/:\s*$/.test(lines[j]); j++) {
+      if (inline && !BULLET.test(lines[j])) break;
       out.push(...splitBooks(lines[j]));
     }
   }
