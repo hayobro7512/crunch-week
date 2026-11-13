@@ -48,22 +48,43 @@ button:focus-visible, a:focus-visible { outline: 3px solid var(--accent); outlin
 #status { color: var(--muted); }
 
 .callout {
-  margin-top: 32px; padding: 16px 20px; border-radius: 10px; font-size: 1.1rem;
-  background: hsla(var(--hot), 0.12); border-left: 6px solid hsl(var(--hot));
+  margin-top: 32px; padding: 20px 24px; border-radius: 12px;
+  background: hsla(var(--hot), 0.12); border-left: 8px solid hsl(var(--hot));
 }
-.nudge { display: block; margin-top: 4px; font-size: 1rem; }
+.callout p { margin: 0; }
+.callout .kicker { text-transform: uppercase; letter-spacing: 0.08em; font-size: 0.8rem; font-weight: 700; color: hsl(var(--hot)); }
+.callout .headline { font-size: clamp(1.4rem, 3.5vw, 2rem); font-weight: 800; letter-spacing: -0.01em; line-height: 1.2; margin-top: 2px; }
+.callout .what { color: var(--muted); margin-top: 2px; }
+.chips { list-style: none; display: flex; flex-wrap: wrap; gap: 6px; padding: 0; margin: 12px 0 0; }
+.chips li { padding: 4px 10px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-size: 0.95rem; }
+.chips li b { color: var(--muted); font-weight: 600; margin-right: 2px; }
+.chips li.exam, .chips li.project, .chips li.essay { border-color: hsl(var(--hot)); }
+.nudge { margin-top: 12px !important; font-size: 1.1rem; font-weight: 600; }
+.nudge::before { content: "→ "; color: hsl(var(--hot)); }
 
-.heatmap { display: grid; grid-template-columns: repeat(auto-fill, minmax(64px, 1fr)); gap: 6px; }
+.heatmap { display: grid; grid-template-columns: repeat(auto-fill, minmax(76px, 1fr)); gap: 6px; }
 .cell {
-  display: flex; flex-direction: column; justify-content: space-between; min-height: 64px; padding: 6px 8px;
-  border-radius: 6px; text-decoration: none; color: var(--ink); border: 1px solid var(--line);
+  position: relative; display: flex; flex-direction: column; justify-content: space-between; min-height: 80px; padding: 8px 10px;
+  border-radius: 8px; text-decoration: none; color: var(--ink); border: 1px solid var(--line);
   background: hsla(var(--hot), calc(var(--heat) * 0.85));
 }
-.cell .wk { font-size: 0.75rem; }
-.cell .n { font-weight: 700; font-size: 1.2rem; }
-.cell.worst { outline: 3px solid hsl(var(--hot)); outline-offset: 1px; animation: glow 1.6s ease-in-out infinite alternate; }
-@keyframes glow { to { box-shadow: 0 0 18px hsla(var(--hot), 0.7); } }
-@media (prefers-reduced-motion: reduce) { .cell.worst { animation: none; } }
+.cell .wk { font-size: 0.85rem; font-weight: 600; }
+.cell .n { font-weight: 800; font-size: 1.6rem; }
+.cell .tag { position: absolute; right: 8px; bottom: 10px; font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; }
+.cell.worst { color: #fff; outline: 3px solid hsl(var(--hot)); outline-offset: 2px; animation: glow 1.4s ease-in-out infinite alternate; }
+.legend { display: flex; align-items: center; gap: 8px; margin-top: 8px; font-size: 0.85rem; color: var(--muted); }
+.legend i { width: 120px; height: 10px; border-radius: 5px; background: linear-gradient(90deg, hsla(var(--hot), 0.05), hsla(var(--hot), 0.85)); }
+@keyframes glow { from { box-shadow: 0 0 4px hsla(var(--hot), 0.4); } to { box-shadow: 0 0 28px 4px hsla(var(--hot), 0.8); } }
+
+/* Reveal after Unpack: cells pop in left to right (~0.6 s), then the callout rises, then the worst week starts to glow. */
+.reveal .cell { animation: pop 0.35s ease-out both; animation-delay: calc(var(--i) * 35ms); }
+.reveal .cell.worst { animation: pop 0.35s ease-out both, glow 1.4s ease-in-out infinite alternate; animation-delay: calc(var(--i) * 35ms), 0.8s; }
+.reveal .callout { animation: rise 0.5s ease-out 0.5s both; }
+@keyframes pop { from { opacity: 0; transform: scale(0.85); } }
+@keyframes rise { from { opacity: 0; transform: translateY(12px); } }
+@media (prefers-reduced-motion: reduce) {
+  .cell.worst, .reveal .cell, .reveal .cell.worst, .reveal .callout { animation: none; }
+}
 
 .weeks { list-style: none; padding: 0; margin: 24px 0 0; }
 .weeks > li { padding: 12px 0; border-top: 1px solid var(--line); scroll-margin-top: 16px; }

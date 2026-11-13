@@ -30,8 +30,10 @@ export function worstWeek(weeks) {
   return weeks.reduce((a, w) => (!a || w.score > a.score ? w : a), null);
 }
 
-// The big item in the week that needs starting first: {item, date}, or null if it has none.
+// What to start early: an essay or project first (work you can start now), else the earliest exam.
+// Returns {item, date} or null.
 export function startBy(week) {
   const picks = week.items.filter((it) => LEAD_DAYS[it.type]).map((item) => ({ item, date: addDays(item.date, -LEAD_DAYS[item.type]) }));
-  return picks.sort((a, b) => a.date - b.date)[0] ?? null;
+  const exam = (p) => (p.item.type === 'exam' ? 1 : 0);
+  return picks.sort((a, b) => exam(a) - exam(b) || a.date - b.date)[0] ?? null;
 }

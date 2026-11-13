@@ -36,10 +36,15 @@ $('unpack').onclick = () => {
     return;
   }
   $('status').textContent = `${plural(items.length, 'deadline')} found.`;
-  $('results').hidden = false;
+  const res = $('results');
+  res.hidden = false;
   renderWeeks(toWeeks(items));
   renderBooks(text);
-  $('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  // Replay the reveal on every Unpack: drop the class, force a reflow, add it back.
+  res.classList.remove('reveal');
+  void res.offsetWidth;
+  res.classList.add('reveal');
+  res.scrollIntoView({ behavior: 'smooth', block: 'start' });
 };
 
 $('ics').onclick = async () => {
@@ -57,25 +62,40 @@ function renderWeeks(weeks) {
   const worst = worstWeek(weeks);
   const max = worst.score || 1;
 
-  // Callout: the crunch week, what's in it, and when to start.
+  // Callout: the crunch week, every item in it, and what to start early.
   const counts = {};
   for (const it of worst.items) counts[it.type] = (counts[it.type] || 0) + 1;
   const what = Object.entries(counts).sort((a, b) => b[1] - a[1]).map(([t, n]) => plural(n, t)).join(', ');
-  const head = startBy(worst);
+  const span = Math.round((worst.items.at(-1).date - worst.items[0].date) / 864e5) + 1;
+  const chips = el('ul', 'chips');
+  for (const it of worst.items) {
+    const chip = el('li', it.type);
+    chip.append(el('b', null, fmt(it.date, { weekday: 'short' })), ` ${it.course} ${it.title}`);
+    chips.append(chip);
+  }
   const c = $('callout');
   c.replaceChildren(
-    el('strong', null, `Crunch week ${fmt(worst.start)} to ${fmt(worst.end)}`),
-    el('span', null, `: ${what}.`),
+    el('p', 'kicker', 'Your crunch week'),
+    el('p', 'headline', `${fmt(worst.start)} to ${fmt(worst.end)}: ${plural(worst.items.length, 'deadline')} in ${plural(span, 'day')}`),
+    el('p', 'what', `${what}.`),
+    chips,
   );
-  if (head) c.append(el('span', 'nudge', ` Start ${head.item.title} (${head.item.course}) by ${fmt(head.date, { weekday: 'short', month: 'short', day: 'numeric' })}.`));
+  const head = startBy(worst);
+  if (head) {
+    const early = Math.round((head.item.date - head.date) / 864e5);
+    const verb = head.item.type === 'exam' ? 'Start studying for' : 'Start';
+    c.append(el('p', 'nudge', `${verb} ${head.item.course} ${head.item.title} by ${fmt(head.date, { weekday: 'short', month: 'short', day: 'numeric' })}, ${early === 7 ? 'a week' : plural(early, 'day')} early.`));
+  }
 
-  // Heatmap: one cell per week, darker = heavier.
+  // Heatmap: one cell per week, darker = heavier. --i staggers the reveal.
   $('heatmap').replaceChildren(...weeks.map((w, i) => {
     const cell = el('a', 'cell' + (w === worst ? ' worst' : ''));
     cell.href = `#week-${i}`;
     cell.style.setProperty('--heat', (w.score / max).toFixed(2));
+    cell.style.setProperty('--i', i);
     cell.title = `${fmt(w.start)}: ${plural(w.items.length, 'deadline')}`;
     cell.append(el('span', 'wk', fmt(w.start)), el('span', 'n', w.items.length || ''));
+    if (w === worst) cell.append(el('span', 'tag', 'Crunch'));
     return cell;
   }));
 
