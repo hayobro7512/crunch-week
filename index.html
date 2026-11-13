@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Crunch Week</title>
+  <meta name="description" content="Paste your syllabi, see your crunch weeks coming, and find your textbooks free.">
+  <link rel="stylesheet" href="style.css">
+  <script type="importmap">
+    { "imports": { "chrono-node": "https://cdn.jsdelivr.net/npm/chrono-node@2.7.7/+esm" } }
+  </script>
+  <script type="module" src="src/main.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Crunch Week</h1>
+    <p class="tag">Paste your syllabi. See your crunch weeks coming. Find your textbooks free.</p>
+  </header>
+
+  <main>
+    <section class="input">
+      <label for="syllabi">Your syllabi</label>
+      <textarea id="syllabi" rows="12" placeholder="Paste one or more syllabi here: course name on top, then the schedule and deadlines."></textarea>
+      <div class="actions">
+        <button id="sample" type="button" class="ghost">Load sample</button>
+        <button id="unpack" type="button">Unpack my semester</button>
+        <span id="status" role="status"></span>
+      </div>
+    </section>
+
+    <section id="results" hidden>
+      <div id="callout" class="callout"></div>
+      <h2>Your semester, week by week</h2>
+      <div id="heatmap" class="heatmap" aria-label="Weeks colored by workload"></div>
+      <ol id="weeks" class="weeks"></ol>
+      <div class="actions"><button id="ics" type="button" class="ghost">Add to calendar (.ics)</button></div>
+
+      <h2>Textbooks <small>via Open Library</small></h2>
+      <div id="books" class="books"></div>
+    </section>
+  </main>
+</body>
+</html>
